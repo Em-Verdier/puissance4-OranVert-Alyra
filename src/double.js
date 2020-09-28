@@ -1,5 +1,6 @@
 import readlineSync from 'readline-sync'
 import chalk from 'chalk'
+import { victory } from './victory.js'
 
 const yellow = chalk.yellow('O')
 const red = chalk.red('X')
@@ -21,7 +22,7 @@ const gridLine = () => {
 }
 
 // Visuel du terminal
-const visu = () => {
+export const visu = () => {
     console.log('    1   2   3   4   5   6   7')
     gridLine()
     console.log(
@@ -50,7 +51,7 @@ const visu = () => {
     gridLine()
 }
 // Choix de la colonne pendant le jeu
-const play = () => {
+export const play = () => {
     let player = Number(
         readlineSync.question('selectionner une colonne de 1 à 7: ')
     )
@@ -66,17 +67,17 @@ const play = () => {
     return (column = player - 1)
 }
 
-// X ou O en focntion des tours des joueurs
-let rounds = 0
-let pawn = 'O'
+// X ou O en fonction des tours des joueurs
+export let rounds = 0
+export let pawn
 
-const round = () => {
+export const round = () => {
     rounds += 1
     return rounds % 2 === 0 ? (pawn = yellow) : (pawn = red)
 }
 
-// Faire "tomber" les pions sur la lige la plus basse possible
-const down = () => {
+// Faire "tomber" les pions sur la ligne la plus basse possible
+export const down = () => {
     for (let i = 5; i >= 0; i -= 1) {
         if (grid[i][column] != ' ') {
         } else {
@@ -86,18 +87,39 @@ const down = () => {
     }
 }
 
-// Affiche le jeu avec l'apparition des O et des X
-const game = () => {
-    while (true) {
-        visu()
-        round()
-        play()
-        console.log('tour', rounds)
-        console.log('pion', pawn)
-        down()
+export const checkHorizontal = () => {
+    for (let y = 0; y <= 5; y += 1) {
+        let count = 1
+        for (let x = 0; x <= 6; x += 1) {
+            if (count == 4) {
+                victory()
+            } else if (grid[y][x] == ' ' || grid[y][x + 1] == ' ') {
+                count = 1
+            } else if (grid[y][x] == grid[y][x + 1]) {
+                count += 1
+            } else {
+                count = 1
+            }
+        }
     }
 }
-game() // > lance le jeu
+
+export const checkVertical = () => {
+    for (let x = 0; x <= 6; x += 1) {
+        let count = 1
+        for (let y = 0; y <= 5; y += 1) {
+            if (count === 3) {
+                victory()
+            } else if (grid[y][x] != ' ' && grid[y - 1][x] != ' ') {
+                if (grid[y][x] == grid[y - 1][x]) {
+                    count += 1
+                } else {
+                    count = 1
+                }
+            }
+        }
+    }
+}
 
 // Victoire horizontale
 
